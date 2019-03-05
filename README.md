@@ -1,7 +1,7 @@
 # Kaggle---Santander
-
-Hi,
-
-This is Monida, I am learning programming.
-
-This project is about a Kaggle competition with a binary classification model.
+'''
+1st APPROACH
+-Keras ANN
+-Use all Data
+-Without treating data imbalancing
+'''
