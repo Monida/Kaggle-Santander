@@ -1,6 +1,7 @@
-#Libraries
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import time
-import sklearn
+#Lower the threshold
+threshold = 0.2
+predictions = np.where(predictions<threshold,0,1)
+predictions
+
+np.count_nonzero(predictions==1)
+
