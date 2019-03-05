@@ -1,7 +1,2 @@
 # Kaggle---Santander
-'''
-1st APPROACH
--Keras ANN
--Use all Data
--Without treating data imbalancing
-'''
+This is the code for a Kaggle Competition that consists of a binary classification problem.
