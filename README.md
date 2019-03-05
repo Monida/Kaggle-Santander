@@ -1,7 +1,6 @@
 # Kaggle---Santander
 '''
-1st APPROACH
--Keras ANN
--Use all Data
+2nd APPROACH
+-Lower the threshold
 -Without treating data imbalancing
 '''
