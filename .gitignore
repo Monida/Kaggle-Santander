@@ -1,3 +1,4 @@
 # Ignore files
+test.txt
 Data/test.csv
 Data/train.csv
