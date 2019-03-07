@@ -1,0 +1,4 @@
+# Ignore files
+*.zip
+Data/test.csv
+Data/train.csv
