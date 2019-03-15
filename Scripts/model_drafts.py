@@ -3,7 +3,8 @@
 Kaggle - Santander
 """
 '''
-Run before each approach
+This .py document has drafts of  models run to play and understand how the data 
+reacts to the different models
 '''
 
 #Libraries
@@ -11,9 +12,10 @@ import numpy as np
 import pandas as pd
 import time
 
+
 #Importing the dataset
-train_set = pd.read_csv('train.csv')
-test_set = pd.read_csv('test.csv')
+train_set = pd.read_csv('../Data/train.csv')
+test_set = pd.read_csv('../Data/test.csv')
 
 x_train=train_set.iloc[:,2:202]
 y_train=train_set.iloc[:,1]
@@ -560,3 +562,155 @@ model_7.save(model_backup_path)
 Conclusions
 Score: 0.651
 '''
+
+'''
+8th APPROACH
+-XGBoost
+'''
+import xgboost as xgb
+import pandas as pd
+from sklearn.utils import resample
+import numpy as np
+
+#Import the dataset
+train_set = pd.read_csv('../Data/train.csv')
+test_set = pd.read_csv('../Data/test.csv')
+
+newtrain_set = resample(train_set, replace=True, n_samples = 160000, random_state=1)
+neweval_set = resample(train_set, replace=True, n_samples = 40000, random_state=1)
+
+train_8 = newtrain_set.iloc[:,2:202]
+label = newtrain_set.iloc[:,1]
+train_8 = xgb.DMatrix(train_8, label=label)
+
+eval_8 = neweval_set.iloc[:,2:202]
+label = neweval_set.iloc[:,1]
+eval_8 =xgb.DMatrix(eval_8, label=label)
+
+test_8 = test_set.iloc[:,1:201]
+test_8 = xgb.DMatrix(test_8)
+
+#Set parameters
+param = {'max_depth': 2, 'eta': 1, 'silent': 1, 'objective': 'binary:logistic', 'eval_metric':'auc'}
+evallist = [(eval_8, 'eval'), (train_8, 'train')]
+
+#Fit model
+num_round = 200
+bst = xgb.train(param, train_8, num_round, evallist)
+bst.save_model('../Models/kaggle_santander_model_8.model')
+
+#Predictions
+predictions = bst.predict(test_8)
+
+threshold = 0.2
+predictions = np.where(predictions<threshold,0,1)
+predictions
+
+np.count_nonzero(predictions==1)
+
+#Write predictions in the right format
+
+import submission_format
+[predictions,number_of_ones] = submission_format.right_format(predictions,200000,0.5)
+
+#Save as csv
+predictions.to_csv('../Data/santander_predictions_8th_approach.csv', sep=',',index=False)
+
+
+'''
+CONCLUSION
+-Score: 0.746
+The score improved but when evaluating the model it found 26388 1's out of 200000 
+(0:1 ratio is about 90:1), similar ration than in the original training set.
+However, since the score was still low, it means that the observations classified as 1 as 
+wrong and the model might be overfitted
+'''
+
+'''
+9th APPROACH
+-XGBoost
+-Data undersampling
+'''
+import xgboost as xgb
+import pandas as pd
+from sklearn.utils import resample
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+#Import the dataset
+train_set = pd.read_csv('../Data/train.csv')
+test_set = pd.read_csv('../Data/test.csv')
+
+x_train= train_set.iloc[:,2:202]
+y_train = train_set.iloc[:,1]
+test_9 = test_set.iloc[:,1:201]
+test_9 =  xgb.DMatrix(test_9)
+
+# Splitt the dataset into the raining set and evaluation set
+x_train_9, x_eval_9, y_train_9, y_eval_9 = train_test_split(x_train, y_train, test_size = 0.2, random_state = 0)
+
+y_train_9=pd.DataFrame(y_train_9)
+train_9 = y_train_9.join(x_train_9)
+
+y_eval_9 = pd.DataFrame(y_eval_9)
+eval_9 = y_eval_9.join(x_eval_9)
+label = eval_9.iloc[:,0]
+eval_9 = xgb.DMatrix(eval_9,label=label)
+
+#Take all the 1's of the y_train_9 and match them the same amount of 0's
+train_9_1s = train_9[train_9['target']==1]
+train_9_0s = train_9[train_9['target']!=1]
+
+#Set parameters
+param = {'max_depth': 2, 'eta': 1, 'silent': 1, 'objective': 'binary:logistic', 'eval_metric':'auc'}
+
+#Fit model 20 times with 1/4 of the of the scaled_x_train_9 data
+num_round = 100
+
+list_evallist = []
+
+for i in range (20):
+    train_1s = resample(train_9_1s, replace = False, n_samples = 4000)
+    train_0s = resample(train_9_0s, replace = False, n_samples = 4000)
+    
+    train_9 = pd.concat([train_1s,train_0s])
+    train_9 = train_9.sort_index()
+    label = train_9.iloc[:,0]
+    train_9 = xgb.DMatrix(train_9,label)
+    
+    evallist = [(eval_9, 'eval'), (train_9, 'train')] 
+    list_evallist.append(evallist)
+    
+    bst = xgb.train(param, train_9, num_round, evallist)
+    
+    
+bst.save_model('../Models/kaggle_santander_model_9.model')
+
+
+#Predictions
+predictions = bst.predict(eval_9)
+
+threshold = 0.2
+predictions = np.where(predictions<threshold,0,1)
+predictions
+
+np.count_nonzero(predictions==1)
+
+predictions = bst.predict(test_9)
+
+threshold = 0.2
+predictions = np.where(predictions<threshold,0,1)
+predictions
+
+np.count_nonzero(predictions==1)
+
+#Write predictions in the right format
+
+import submission_format
+[predictions,number_of_ones] = submission_format.right_format(predictions,200000,0.5)
+
+#Save as csv
+predictions.to_csv('../Data/santander_predictions_8th_approach.csv', sep=',',index=False)
+
+
+

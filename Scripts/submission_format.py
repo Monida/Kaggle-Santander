@@ -15,7 +15,7 @@ def right_format (predictions,N,threshold):
     idx=["ID_code"]
     idx[1:N]=["test_" + str(i) for i in range(N)]
     predicted_values = ["target"]
-    predicted_values[1:N] = [predictions[i][0] for i in range(N)]
+    predicted_values[1:N] = [predictions[i] for i in range(N)]
     predicted_values[0:5]
     results = [[idx[i],predicted_values[i]] for i in range(N+1)]
     results[0:5]
