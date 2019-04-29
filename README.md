@@ -1,5 +1,5 @@
 # Kaggle-Santander
-This repository contains the code, data and models developed for a Kaggle Competition that consists of a binary classification problem. The competition can be found [here](https://www.kaggle.com/c/santander-customer-transaction-prediction).
+This repository contains the code, data and models developed for a Kaggle Competition that consists of a binary classification problem. The competition can be found [here](https://www.kaggle.com/c/santander-customer-transaction-prediction). At first sight it is an easy binary classification model, but the unbalanced data (90:1) generates some challenges. 
 
 The repository has 4 folders described below:
 
